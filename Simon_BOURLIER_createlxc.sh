@@ -67,7 +67,7 @@ sudo lxc-start -n $lxc_name
 sudo lxc-attach -n $lxc_name -- bash -c '
   update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8 > /dev/null 2>&1 && print -- 
   apt update -qq > /dev/null 2>&1 && apt install -yqq ssh sudo > /dev/null 2>&1
-  useradd -G sudo user:user
+useradd -m -p $(echo "user" | openssl passwd -1 -stdin) user
 '
 sudo lxc-ls -f
 
