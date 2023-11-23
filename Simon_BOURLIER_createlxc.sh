@@ -13,10 +13,6 @@ passwd="user"
 #############################
 # Déclaration des fonctions #
 #############################
-display() {
-    printf -- "%s\n" "$1"
-}
-
 error() {
     printf >&2 -- "Error: %s\n" "$1"
     exit "$2"
@@ -84,7 +80,7 @@ done
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch || error "Erreur lors de la création du conteneur lxc"
 sudo lxc-start -n $lxc_name || error "Erreur lors du lancement du conteneur lxc"
 
-display "En attente de connexion internet ..."
+printf -- "\n%s\n" "En attente de connexion internet ..."
 while [ ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1 ]; do
     sleep 1
 done
@@ -99,6 +95,6 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   echo "'"$username"':'"$passwd"'" | chpasswd
 ' || error "Erreur lors du paramétrage du conteneur lxc"
 
-printf -- "\n" && sudo lxc-ls -f
+printf "\n" && sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
