@@ -22,11 +22,11 @@ auto_connect=false
 # Déclaration des fonctions #
 #############################
 success() {
-    printf -- "%b%%s%b\n" "$GREEN" "$1" "$RESET_COLOR"
+    printf -- "${GREEN}%s${RESET_COLOR}\n" "$1"
 }
 
 error() {
-    printf >&2 -- "%bError: %s%b\n" "$RED" "$1" "$RESET_COLOR"
+    printf >&2 -- "${RED}Error: %s$RESET_COLOR\n" "$1"
     exit "$2"
 }
 
