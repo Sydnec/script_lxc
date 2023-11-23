@@ -113,11 +113,12 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   update-locale LANG=fr_FR.UTF-8' >/dev/null 2>&1 && success "Keybord setted up" || error "Failed to set up keyboard"
 
 sudo lxc-attach -n $lxc_name -- bash -c '
-  apt update -qq &&
-  apt install -yqq ssh sudo &&
-  useradd '"$username"' &&
-  echo "'"$username"':'"$passwd"'" | chpasswd'
+  apt update &&
+  apt install -y ssh sudo' >/dev/null 2>&1
 
+sudo lxc-attach -n $lxc_name -- bash -c '
+  useradd '"$username"' &&
+  echo "'"$username"':'"$passwd"'" | chpasswd' >/dev/null 2>&1 && success "User $username added" || error "Failed to add user $username"
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 cat <<-EOF
@@ -131,6 +132,6 @@ cat <<-EOF
         ssh $username@$container_ip
 
 EOF
-    sudo lxc-ls -f
+sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
