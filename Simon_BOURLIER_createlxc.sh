@@ -9,7 +9,7 @@ myself=$(basename "$0") # Nom du script
 sudo lxc-create -t download -n c1 -- -d debian -r bullseye -a amd64
 sudo lxc-start -n c1
 sudo lxc-attach -n c1 -- bash -c '
-  dpkg-reconfigure locales
+  update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8
   apt update
   apt install -y ssh sudo
   adduser user
