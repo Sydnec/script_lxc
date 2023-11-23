@@ -95,6 +95,18 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   echo "'"$username"':'"$passwd"'" | chpasswd
 ' || error "Erreur lors du paramétrage du conteneur lxc"
 
+container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
+cat <<-EOF
+
+    You can now connect with ssh to the container : 
+
+    | Username :    user
+    | Password :    user
+
+    command :
+        ssh user@$container_ip
+EOF
+
 printf "\n" && sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
