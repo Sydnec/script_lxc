@@ -83,6 +83,11 @@ done
 
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch || error "Erreur lors de la création du conteneur lxc"
 sudo lxc-start -n $lxc_name || error "Erreur lors du lancement du conteneur lxc"
+
+while ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1; do
+    sleep 1
+done
+
 sudo lxc-attach -n $lxc_name -- bash -c '
   echo "fr_FR.UTF-8 UTF-8" > /etc/locale.gen &&
   locale-gen &&
