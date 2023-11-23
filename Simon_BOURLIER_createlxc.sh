@@ -4,7 +4,7 @@ set -euo pipefail
 
 myself=$(basename "$0") # Nom du script
 
-[ -z $(apt list --installed 2>/dev/null | grep -w "lxc") ] && echo "oui" || echo "non" # sudo apt install -qq lxc
+[ -z $(apt list --installed 2>/dev/null | grep -w "lxc") ] && sudo apt install -qq lxc
 # [ grep -q "^lxc\.net\.0\.hwaddr.*xx:xx:xx$" /etc/lxc/default.conf ] && echo "fait"
 
 
