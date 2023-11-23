@@ -91,18 +91,13 @@ done
 
 if [ -z "$(dpkg -l | grep -w 'lxc' | grep -w "lxc")" ]; then
     info "Installing lxc"
-    sudo apt install -y lxc >/dev/null 2>&1 && success "lxc intalled" || error "lxc to settle in" 1
+    sudo apt install -y lxc >/dev/null 2>&1 && success "lxc intalled" || error "Failed lxc to settle in" 1
 fi
 if [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ]; then
     info "Editing /etc/lxc/default.conf"
-    sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf >/dev/null 2>&1 && success "/etc/lxc/default.conf edited" || error "fail to edit /etc/lxc/default.conf" 1
+    sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf >/dev/null 2>&1 && success "/etc/lxc/default.conf edited" || error "Failed to edit /etc/lxc/default.conf" 1
 fi
-
-if lxc-info -n $lxc_name &>/dev/null; then
-    echo "Le nom du conteneur '$lxc_name' est déjà pris."
-else
-    echo "Le nom du conteneur '$lxc_name' est disponible."
-fi
+[ lxc-info -n $lxc_name &>/dev/null ] && error "There is already a container using the name \"$lxc_name\""
 
 
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch >/dev/null 2>&1 && success "Container created" || error "lxc container failed to create" 1
