@@ -46,7 +46,6 @@ usage() {
         -r : 
         -a : 
         -u : 
-        -c : 
         -h : Afficher ce message d'aide
 
     Exemple:
@@ -60,7 +59,7 @@ usage() {
 #######################
 # Lecture des options #
 #######################
-while getopts "n:d:r:a:u:ch" opt; do
+while getopts "n:d:r:a:u:h" opt; do
     case "$opt" in
     n) # Nom du contenaire
         lxc_name="$OPTARG"
@@ -79,9 +78,6 @@ while getopts "n:d:r:a:u:ch" opt; do
         ;;
     p) # Password
         passwd="$OPTARG"
-        ;;
-    c) # Automatic connection
-        auto_connect=true
         ;;
     h) # Afficher le message d'aide
         usage
@@ -133,12 +129,6 @@ cat <<-EOF
         ssh $username@$container_ip
 
 EOF
-if [ "$auto_connect" == false ]; then
     sudo lxc-ls -f
-else
-    ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/key_$lxc_name >/dev/null 1>&2 && success "Generated key" || error "Key generation"
-    sudo ssh-copy-id -i ~/.ssh/key_$lxc_name $username@$container_ip 2>&1 && success "Keys copied" || error "Key copy"
-    ssh $username@$container_ip
-fi
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
