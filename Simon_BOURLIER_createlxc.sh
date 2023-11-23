@@ -82,7 +82,7 @@ done
 
 [ -z "$(dpkg -l | grep -w 'lxc') | grep -w "lxc")" ] && sudo apt install -qq lxc
 [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ] && sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf
-sudo lxc-create -t download -n $lxc_name -- -d $distro_name -r $release -a $arch
+sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch
 sudo lxc-start -n $lxc_name
 sudo lxc-attach -n $lxc_name -- bash -c `
   update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8 > /dev/null 2>&1 && print -- 
