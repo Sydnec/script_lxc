@@ -91,12 +91,19 @@ done
 
 if [ -z "$(dpkg -l | grep -w 'lxc' | grep -w "lxc")" ]; then
     info "Installing lxc"
-    sudo apt install -yqq lxc && success "lxc intalled" || error "lxc to settle in" 1
+    sudo apt install -y lxc >/dev/null 2>&1 && success "lxc intalled" || error "lxc to settle in" 1
 fi
 if [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ]; then
     info "Editing /etc/lxc/default.conf"
     sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf >/dev/null 2>&1 && success "/etc/lxc/default.conf edited" || error "fail to edit /etc/lxc/default.conf" 1
 fi
+
+if lxc-info -n <nom_du_conteneur> &>/dev/null; then
+    echo "Le nom du conteneur '$nom_du_conteneur' est déjà pris."
+else
+    echo "Le nom du conteneur '$nom_du_conteneur' est disponible."
+fi
+
 
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch >/dev/null 2>&1 && success "Container created" || error "lxc container failed to create" 1
 sudo lxc-start -n $lxc_name && success "Container launched" || error "lxc container failed to launch" 1
@@ -110,7 +117,7 @@ success "Internet connection etablished"
 sudo lxc-attach -n $lxc_name -- bash -c '
   echo "fr_FR.UTF-8 UTF-8" > /etc/locale.gen &&
   locale-gen &&
-  update-locale LANG=fr_FR.UTF-8' >/dev/null 2>&1 && success "Keybord setted up" || error "Failed to set up keyboard" 1
+  update-locale LANG=fr_FR.UTF-8' >/dev/null 2>&1 && success "Keybord set up" || error "Failed to set up keyboard" 1
 
 sudo lxc-attach -n $lxc_name -- bash -c '
   apt update &&
