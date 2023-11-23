@@ -7,7 +7,7 @@ lxc_name="lxc_$(printf '%x\n' "$(date '+%Y%m%d%H%M%S')")"
 distr_name="debian"
 release="bullseye"
 arch="amd64"
-user="user"
+username="user"
 passwd="user"
 
 #############################
@@ -65,7 +65,7 @@ while getopts "n:d:r:a:u:h" opt; do
         arch="$OPTARG"
         ;;
     u) # Username
-        user="$OPTARG"
+        username="$OPTARG"
         ;;
     p) # Password
         passwd="$OPTARG"
