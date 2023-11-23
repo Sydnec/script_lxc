@@ -123,6 +123,7 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   echo "'"$username"':'"$passwd"'" | chpasswd' >/dev/null 2>&1 && success "User $username added" || error "Failed to add user $username" 1
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
+success ""
 cat <<-EOF
 
     You can now connect with ssh to the container : 
