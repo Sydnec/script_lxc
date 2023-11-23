@@ -84,7 +84,7 @@ done
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch || error "Erreur lors de la création du conteneur lxc"
 sudo lxc-start -n $lxc_name || error "Erreur lors du lancement du conteneur lxc"
 sudo lxc-attach -n $lxc_name -- bash -c '
-  apt update -qq
+  
 ' || error "Erreur lors du paramétrage du conteneur lxc"
 display $(sudo lxc-ls -f)
 
