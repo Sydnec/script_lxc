@@ -2,6 +2,13 @@
 
 set -euo pipefail
 
+###########################
+# Variables et constantes #
+###########################
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+RESET_COLOR="\033[0m"
+
 myself=$(basename "$0") # Nom du script
 lxc_name="lxc_$(printf '%x\n' "$(date '+%Y%m%d%H%M%S')")"
 distr_name="debian"
@@ -9,12 +16,17 @@ release="bullseye"
 arch="amd64"
 username="user"
 passwd="user"
+auto_connect=false
 
 #############################
 # Déclaration des fonctions #
 #############################
+success() {
+    printf -- "%b%%s%b\n" "$GREEN" "$1" "$RESET_COLOR"
+}
+
 error() {
-    printf >&2 -- "Error: %s\n" "$1"
+    printf >&2 -- "%bError: %s%b\n" "$RED" "$1" "$RESET_COLOR"
     exit "$2"
 }
 
@@ -44,7 +56,7 @@ usage() {
 #######################
 # Lecture des options #
 #######################
-while getopts "n:d:r:a:u:h" opt; do
+while getopts "n:d:r:a:u:ah" opt; do
     case "$opt" in
     n) # Nom du contenaire
         lxc_name="$OPTARG"
@@ -62,6 +74,9 @@ while getopts "n:d:r:a:u:h" opt; do
         username="$OPTARG"
         ;;
     p) # Password
+        passwd="$OPTARG"
+        ;;
+    a) # Automatic connection
         passwd="$OPTARG"
         ;;
     h) # Afficher le message d'aide
@@ -93,7 +108,7 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   apt install -yqq ssh sudo > /dev/null 2>&1 &&
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
-' || error "Erreur lors du paramétrage du conteneur lxc"
+' && sucess "Paramétrage effectué avec succès" || error "Erreur lors du paramétrage du conteneur lxc"
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 cat <<-EOF
@@ -107,15 +122,7 @@ cat <<-EOF
         ssh user@$container_ip
 
 EOF
-
-ssh_command="ssh $username@$container_ip"
-echo "Tu peux maintenant te connecter avec SSH en utilisant la commande :"
-echo "| $ssh_command"
-
-# Récupérer l'heure du conteneur
-container_time=$($ssh_command 'date')
-echo "L'heure du conteneur $lxc_name est : $container_time"
-
+[ "$auto_connect" == true ] && ssh user@$container_ip
 sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
