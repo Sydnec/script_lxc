@@ -4,6 +4,11 @@ set -euo pipefail
 
 myself=$(basename "$0") # Nom du script
 lxc_name="lxc_$(printf '%x\n' "$(date '+%Y%m%d%H%M%S')")"
+distr_name="debian"
+release="bullseye"
+arch="amd64"
+user="user"
+passwd="user"
 
 #############################
 # Déclaration des fonctions #
@@ -15,7 +20,7 @@ display() {
 }
 
 error() {
-    [ -n "$logs_dir" ] && >&2 printf -- "$(date '+[%d/%m/%Y-%H:%M:%S]') Error: %s\n" "$1" || >&2 printf -- "%Error: s\n" "$1"
+    [ -n "$logs_dir" ] && printf >&2 -- "$(date '+[%d/%m/%Y-%H:%M:%S]') Error: %s\n" "$1" || printf >&2 -- "%Error: s\n" "$1"
     exit "$2"
 }
 
@@ -45,10 +50,25 @@ usage() {
 #######################
 # Lecture des options #
 #######################
-while getopts "n:h" opt; do
+while getopts "n:d:r:a:u:h" opt; do
     case "$opt" in
     n) # Nom du contenaire
         lxc_name="$OPTARG"
+        ;;
+    d) # Distribution
+        distr_name="$OPTARG"
+        ;;
+    r) # Release
+        release="$OPTARG"
+        ;;
+    a) # Architecture
+        arch="$OPTARG"
+        ;;
+    u) # Username
+        user="$OPTARG"
+        ;;
+    p) # Password
+        passwd="$OPTARG"
         ;;
     h) # Afficher le message d'aide
         usage
@@ -60,16 +80,15 @@ while getopts "n:h" opt; do
     esac
 done
 
-[ -z "$(dpkg -l | grep -w 'lxc') | grep -w "lxc")" ] && sudo apt install -qq lxc 
+[ -z "$(dpkg -l | grep -w 'lxc') | grep -w "lxc")" ] && sudo apt install -qq lxc
 [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ] && sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf
-sudo lxc-create -t download -n $lxc_name -- -d debian -r bullseye -a amd64
+sudo lxc-create -t download -n $lxc_name -- -d $distro_name -r $release -a $arch
 sudo lxc-start -n $lxc_name
-sudo lxc-attach -n $lxc_name -- bash -c '
+sudo lxc-attach -n $lxc_name -- bash -c `
   update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8 > /dev/null 2>&1 && print -- 
   apt update -qq > /dev/null 2>&1 && apt install -yqq ssh sudo > /dev/null 2>&1
-useradd -m -p $(echo "user" | openssl passwd -1 -stdin) user
-'
+    useradd $username && echo "$username:$passwd" | chpasswd
+`
 sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
-
