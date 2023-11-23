@@ -130,6 +130,8 @@ EOF
 if [ "$auto_connect" == false ]; then
     sudo lxc-ls -f
 else
+    ssh-keygen -f ~/.ssh/key_$lxc_name
+    ssh-copy-id $username@$container_ip
     ssh $username@$container_ip
 fi
 
