@@ -110,8 +110,8 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   locale-gen &&
   update-locale LANG=fr_FR.UTF-8 &&
   apt update -qq &&
-  apt install -yqq ssh sudo
-' > /dev/null 2>&1 && sucess "Container set up" || error "Setting up container"
+  apt install -yqq ssh sudo 
+' && sucess "Container set up" || error "Setting up container"
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 
