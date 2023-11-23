@@ -91,7 +91,7 @@ done
 
 if [ -z "$(dpkg -l | grep -w 'lxc' | grep -w "lxc")" ]; then
     info "Installing lxc"
-    sudo apt install -qq lxc && success "lxc intalled" || error "lxc to settle in" 1
+    sudo apt install -yqq lxc && success "lxc intalled" || error "lxc to settle in" 1
 fi
 if [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ]; then
     info "Editing /etc/lxc/default.conf"
