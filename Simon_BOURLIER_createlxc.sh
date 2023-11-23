@@ -14,13 +14,11 @@ passwd="user"
 # Déclaration des fonctions #
 #############################
 display() {
-    if [ "$no_logs" == false ]; then
-        [ -n "$logs_dir" ] && printf -- "$(date '+[%d/%m/%Y-%H:%M:%S]') %s\n" "$1" || printf -- "%s\n" "$1"
-    fi
+    printf -- "%s\n" "$1"
 }
 
 error() {
-    [ -n "$logs_dir" ] && printf >&2 -- "$(date '+[%d/%m/%Y-%H:%M:%S]') Error: %s\n" "$1" || printf >&2 -- "%Error: s\n" "$1"
+    printf >&2 -- "Error: %s\n" "$1"
     exit "$2"
 }
 
