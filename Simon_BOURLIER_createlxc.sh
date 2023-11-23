@@ -136,7 +136,7 @@ EOF
 if [ "$auto_connect" == false ]; then
     sudo lxc-ls -f
 else
-    sudo ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/key_$lxc_name >/dev/null 2>&1 && success "Generated key" || error "Key generation"
+    ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/key_$lxc_name >/dev/null 1>&2 && success "Generated key" || error "Key generation"
     sudo ssh-copy-id -i ~/.ssh/key_$lxc_name $username@$container_ip 2>&1 && success "Keys copied" || error "Key copy"
     ssh $username@$container_ip
 fi
