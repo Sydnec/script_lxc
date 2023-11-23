@@ -81,7 +81,7 @@ sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch 
 sudo lxc-start -n $lxc_name || error "Erreur lors du lancement du conteneur lxc"
 
 printf -- "\n%s\n\n" "En attente de connexion internet ..."
-while [ ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1 ]; do
+while ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1; do
     sleep 1
 done
 
