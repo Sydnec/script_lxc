@@ -88,10 +88,10 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   export DEBIAN_FRONTEND=noninteractive &&
   update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8 > /dev/null 2>&1 &&
   apt update -qq > /dev/null 2>&1 &&
-  apt install -yqq ssh sudo > /dev/null 2>&1 &&
-  useradd '"$username"' &&
-  echo "'"$username"':'"$passwd"'" | chpasswd
+  apt install -yqq ssh sudo > /dev/null 2>&1
 '
+sudo lxc exec $lxc_name -- useradd "$username"
+sudo lxc exec $lxc_name -- passwd $username $passwd
 sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
