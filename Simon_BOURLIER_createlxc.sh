@@ -23,15 +23,15 @@ auto_connect=false
 # Déclaration des fonctions #
 #############################
 info() {
-    printf -- "$BLUE[INFO]$RESET_COLOR\t%s\n" "$1"
+    printf -- "$BLUE[INFO]$RESET_COLOR\t    %s\n" "$1"
 }
 
 success() {
-    printf -- "$GREEN[SUCCESS]$RESET_COLOR\t%s\n" "$1"
+    printf -- "$GREEN[SUCCESS]$RESET_COLOR   %s\n" "$1"
 }
 
 error() {
-    printf >&2 -- "$RED[ERROR]$RESET_COLOR\t%s\n" "$1"
+    printf >&2 -- "$RED[ERROR]$RESET_COLOR    %s\n" "$1"
     exit "$2"
 }
 
@@ -113,7 +113,7 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   apt install -yqq ssh sudo &&
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
-' > /dev/null 2>&1 && sucess "Container set up" || error "Setting up container"
+' && sucess "Container set up" || error "Setting up container"
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 
