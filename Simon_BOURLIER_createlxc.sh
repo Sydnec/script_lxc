@@ -86,9 +86,9 @@ sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch
 sudo lxc-start -n $lxc_name
 sudo lxc-attach -n $lxc_name -- bash -c '
   export DEBIAN_FRONTEND=noninteractive &&
-  update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8 > /dev/null 2>&1 &&
-  apt update -qq > /dev/null 2>&1 &&
-  apt install -yqq ssh sudo > /dev/null 2>&1 &&
+  update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8 &&
+  apt update -qq &&
+  apt install -yqq ssh sudo &&
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
 '
