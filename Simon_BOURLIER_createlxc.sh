@@ -97,7 +97,7 @@ done
 [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ] && sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf
 
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch > /dev/null 2>&1 && success "Container created" || error "Creating lxc container"
-sudo lxc-start -n $lxc_name || success "Container launched" || error "Launching lxc container"
+sudo lxc-start -n $lxc_name && success "Container launched" || error "Launching lxc container"
 
 printf -- "\n%s\n\n" "Waiting internet connection"
 while ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1; do
@@ -108,27 +108,27 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   echo "fr_FR.UTF-8 UTF-8" > /etc/locale.gen &&
   locale-gen &&
   update-locale LANG=fr_FR.UTF-8 &&
-  apt update -qq > /dev/null 2>&1 &&
-  apt install -yqq ssh sudo > /dev/null 2>&1 &&
+  apt update -qq &&
+  apt install -yqq ssh sudo &&
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
-' && sucess "Container set up" || error "Setting up container"
+' > /dev/null 2>&1 && sucess "Container set up" || error "Setting up container"
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 
 if [ "$auto_connect" == false ]; then 
-    cat <<-EOF
+cat <<-EOF
 
-        You can now connect with ssh to the container : 
+    You can now connect with ssh to the container : 
 
-        | Username :    user
-        | Password :    user
+    | Username :    user
+    | Password :    user
 
-        Command :
-            ssh $username@$container_ip
+    Command :
+        ssh $username@$container_ip
 
-    EOF
-    sudo lxc-ls -f
+EOF
+sudo lxc-ls -f
 else
     sshpass -p "$passwd" ssh $username@$container_ip
 fi
