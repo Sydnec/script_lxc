@@ -97,7 +97,7 @@ if [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ]; the
     info "Editing /etc/lxc/default.conf"
     sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf >/dev/null 2>&1 && success "/etc/lxc/default.conf edited" || error "Failed to edit /etc/lxc/default.conf" 1
 fi
-[ lxc-info -n $lxc_name &>/dev/null ] && error "There is already a container using the name \"$lxc_name\"" 1
+[ sudo lxc-info -n $lxc_name &>/dev/null ] error "There is already a container using the name \"$lxc_name\"" 1
 
 
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch >/dev/null 2>&1 && success "Container created" || error "lxc container failed to create" 1
