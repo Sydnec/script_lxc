@@ -5,7 +5,7 @@ set -euo pipefail
 ###########################
 # Variables et constantes #
 ###########################
-RED="\033[0;31m"
+RED="\033[2;31m"
 GREEN="\033[0;32m"
 BLUE="\033[0;34m"
 RESET_COLOR="\033[0m"
@@ -23,7 +23,7 @@ auto_connect=false
 # Déclaration des fonctions #
 #############################
 info() {
-    printf -- "$BLUE[  INFO ]$RESET_COLOR\t    %s\n" "$1"
+    printf -- "$BLUE[ INFOS ]$RESET_COLOR\t    %s\n" "$1"
 }
 
 success() {
@@ -112,7 +112,7 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   apt update -qq &&
   apt install -yqq ssh sudo useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
-' > /dev/null 2>&1 && success "Container set up" || error "Setting up container"
+' > /dev/null 2>&1
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 
