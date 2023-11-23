@@ -84,8 +84,16 @@ done
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch || error "Erreur lors de la création du conteneur lxc"
 sudo lxc-start -n $lxc_name || error "Erreur lors du lancement du conteneur lxc"
 sudo lxc-attach -n $lxc_name -- bash -c '
-
+  echo "fr_FR.UTF-8 UTF-8" > /etc/locale.gen &&
+  locale-gen &&
+  update-locale LANG=fr_FR.UTF-8 &&
+  apt update -qq &&
+  apt install -yqq ssh sudo &&
+  useradd '"$username"' &&
+  echo "'"$username"':'"$passwd"'" | chpasswd
 ' || error "Erreur lors du paramétrage du conteneur lxc"
+
+display "\n"
 sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
