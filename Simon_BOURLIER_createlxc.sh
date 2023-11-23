@@ -84,11 +84,14 @@ done
 [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ] && sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch
 sudo lxc-start -n $lxc_name
-sudo lxc-attach -n $lxc_name -- bash -c `
-  update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8 > /dev/null 2>&1 && print -- 
-  apt update -qq > /dev/null 2>&1 && apt install -yqq ssh sudo > /dev/null 2>&1
-    useradd $username && echo "$username:$passwd" | chpasswd
-`
+sudo lxc-attach -n $lxc_name -- bash -c '
+  export DEBIAN_FRONTEND=noninteractive &&
+  update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8 > /dev/null 2>&1 &&
+  apt update -qq > /dev/null 2>&1 &&
+  apt install -yqq ssh sudo > /dev/null 2>&1 &&
+  useradd '"$username"' &&
+  echo "'"$username"':'"$passwd"'" | chpasswd
+'
 sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
