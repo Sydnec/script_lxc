@@ -116,23 +116,21 @@ sudo lxc-attach -n $lxc_name -- bash -c '
 '
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
-
-if [ "$auto_connect" == false ]; then
-    cat <<-EOF
+cat <<-EOF
 
     You can now connect with ssh to the container : 
 
-    | Username :    user
-    | Password :    user
+    | Username :  $username
+    | Password :  $passwd
 
     Command :
         ssh $username@$container_ip
 
 EOF
+if [ "$auto_connect" == false ]; then
     sudo lxc-ls -f
 else
-    sudo lxc-ls -f
-    sshpass -p "$passwd" ssh $username@$container_ip
+    ssh $username@$container_ip
 fi
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
