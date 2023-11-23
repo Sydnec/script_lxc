@@ -23,7 +23,7 @@ auto_connect=false
 # Déclaration des fonctions #
 #############################
 info() {
-    printf -- "$BLUE[ INFOS ]$RESET_COLOR    %s\n" "$1"
+    printf -- "$BLUE[ INFOS ]$RESET_COLOR   %s\n" "$1"
 }
 
 success() {
@@ -96,11 +96,11 @@ done
 [ -z "$(dpkg -l | grep -w 'lxc') | grep -w "lxc")" ] && sudo apt install -qq lxc
 [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ] && sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf
 
-sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch > /dev/null 2>&1 && success "Container created" || error "Creating lxc container"
+sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch >/dev/null 2>&1 && success "Container created" || error "Creating lxc container"
 sudo lxc-start -n $lxc_name && success "Container launched" || error "Launching lxc container"
 
 info "Waiting internet connection"
-while ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1; do
+while ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 >/dev/null 2>&1; do
     sleep 1
 done
 success "Internet connection etablished"
@@ -117,8 +117,8 @@ sudo lxc-attach -n $lxc_name -- bash -c '
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 
-if [ "$auto_connect" == false ]; then 
-cat <<-EOF
+if [ "$auto_connect" == false ]; then
+    cat <<-EOF
 
     You can now connect with ssh to the container : 
 
@@ -129,10 +129,10 @@ cat <<-EOF
         ssh $username@$container_ip
 
 EOF
-sudo lxc-ls -f
+    sudo lxc-ls -f
 else
+    sudo lxc-ls -f
     sshpass -p "$passwd" ssh $username@$container_ip
 fi
-
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
