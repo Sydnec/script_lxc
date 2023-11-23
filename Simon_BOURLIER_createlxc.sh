@@ -80,7 +80,7 @@ done
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch || error "Erreur lors de la création du conteneur lxc"
 sudo lxc-start -n $lxc_name || error "Erreur lors du lancement du conteneur lxc"
 
-printf -- "\n%s\n" "En attente de connexion internet ..."
+printf -- "\n%s\n\n" "En attente de connexion internet ..."
 while [ ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1 ]; do
     sleep 1
 done
@@ -90,9 +90,7 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   locale-gen &&
   update-locale LANG=fr_FR.UTF-8 &&
   apt update -qq > /dev/null 2>&1 &&
-  apt install -yqq ssh sudo > /dev/null 2>&1 &&
-  useradd '"$username"' &&
-  echo "'"$username"':'"$passwd"'" | chpasswd
+  apt install -yqq ssh sudo > /dev/null 2>&1
 ' || error "Erreur lors du paramétrage du conteneur lxc"
 
 printf "\n" && sudo lxc-ls -f
