@@ -23,7 +23,7 @@ auto_connect=false
 # Déclaration des fonctions #
 #############################
 info() {
-    printf -- "$BLUE[INFO]$RESET_COLOR\t    %s\n" "$1"
+    printf -- "$BLUE[  INFO ]$RESET_COLOR\t    %s\n" "$1"
 }
 
 success() {
@@ -31,7 +31,7 @@ success() {
 }
 
 error() {
-    printf >&2 -- "$RED[ERROR]$RESET_COLOR    %s\n" "$1"
+    printf >&2 -- "$RED[ ERROR ]$RESET_COLOR    %s\n" "$1"
     exit "$2"
 }
 
