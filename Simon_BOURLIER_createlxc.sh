@@ -93,11 +93,17 @@ while getopts "n:d:r:a:u:ch" opt; do
     esac
 done
 
-[ -z "$(dpkg -l | grep -w 'lxc') | grep -w "lxc")" ] && sudo apt install -qq lxc
-[ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ] && sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf
+if [ -z "$(dpkg -l | grep -w 'lxc') | grep -w "lxc")" ]; then
+    info "Installing lxc"
+    sudo apt install -qq lxc >/dev/null 2>&1 && success "lxc intalled" || error "lxc to settle in"
+fi
+if [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ]; then
+    info "Editing /etc/lxc/default.conf"
+    sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf >/dev/null 2>&1 && success "/etc/lxc/default.conf edited" || error "fail to edit /etc/lxc/default.conf"
+fi
 
-sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch >/dev/null 2>&1 && success "Container created" || error "Creating lxc container"
-sudo lxc-start -n $lxc_name && success "Container launched" || error "Launching lxc container"
+sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch >/dev/null 2>&1 && success "Container created" || error "lxc container failed to create"
+sudo lxc-start -n $lxc_name && success "Container launched" || error "lxc container failed to launch"
 
 info "Waiting internet connection"
 while ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 >/dev/null 2>&1; do
@@ -130,8 +136,8 @@ EOF
 if [ "$auto_connect" == false ]; then
     sudo lxc-ls -f
 else
-    ssh-keygen -N "" -f ~/.ssh/key_$lxc_name
-    ssh-copy-id $username@$container_ip
+    ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/key_$lxc_name >/dev/null 2>&1 && success "Generated key" || error "Key generation"
+    ssh-copy-id $username@$container_ip 2>&1 && success "Keys copied" || error "Key copy"
     ssh $username@$container_ip
 fi
 
