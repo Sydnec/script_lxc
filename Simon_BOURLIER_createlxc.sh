@@ -77,7 +77,7 @@ while getopts "n:d:r:a:u:ch" opt; do
         passwd="$OPTARG"
         ;;
     c) # Automatic connection
-        passwd="$OPTARG"
+        auto_connect=true
         ;;
     h) # Afficher le message d'aide
         usage
