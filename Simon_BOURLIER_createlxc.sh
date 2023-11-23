@@ -110,12 +110,14 @@ success "Internet connection etablished"
 sudo lxc-attach -n $lxc_name -- bash -c '
   echo "fr_FR.UTF-8 UTF-8" > /etc/locale.gen &&
   locale-gen &&
-  update-locale LANG=fr_FR.UTF-8 &&
+  update-locale LANG=fr_FR.UTF-8' >/dev/null 2>&1 && success "Keybord setted up" || error "Failed to set up keyboard"
+  
+sudo lxc-attach -n $lxc_name -- bash -c '
   apt update -qq &&
   apt install -yqq ssh sudo &&
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
-' >/dev/null 2>&1
+
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 cat <<-EOF
