@@ -56,7 +56,7 @@ usage() {
 #######################
 # Lecture des options #
 #######################
-while getopts "n:d:r:a:u:ah" opt; do
+while getopts "n:d:r:a:u:ch" opt; do
     case "$opt" in
     n) # Nom du contenaire
         lxc_name="$OPTARG"
@@ -76,7 +76,7 @@ while getopts "n:d:r:a:u:ah" opt; do
     p) # Password
         passwd="$OPTARG"
         ;;
-    a) # Automatic connection
+    c) # Automatic connection
         passwd="$OPTARG"
         ;;
     h) # Afficher le message d'aide
