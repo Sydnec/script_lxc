@@ -98,10 +98,10 @@ if [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ]; the
     sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf >/dev/null 2>&1 && success "/etc/lxc/default.conf edited" || error "fail to edit /etc/lxc/default.conf" 1
 fi
 
-if lxc-info -n <nom_du_conteneur> &>/dev/null; then
-    echo "Le nom du conteneur '$nom_du_conteneur' est déjà pris."
+if lxc-info -n $lxc_name &>/dev/null; then
+    echo "Le nom du conteneur '$lxc_name' est déjà pris."
 else
-    echo "Le nom du conteneur '$nom_du_conteneur' est disponible."
+    echo "Le nom du conteneur '$lxc_name' est disponible."
 fi
 
 
