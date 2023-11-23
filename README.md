@@ -3,7 +3,6 @@
 
 
 ## Description
----
 
 This Bash script automates the creation of an LXC (Linux Containers) container, performs various configurations, and provides information for connecting to the container via SSH.
 
