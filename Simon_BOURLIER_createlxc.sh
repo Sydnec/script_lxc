@@ -105,8 +105,17 @@ cat <<-EOF
 
     command :
         ssh user@$container_ip
+
 EOF
 
-printf "\n" && sudo lxc-ls -f
+ssh_command="ssh $username@$container_ip"
+echo "Tu peux maintenant te connecter avec SSH en utilisant la commande :"
+echo "| $ssh_command"
+
+# Récupérer l'heure du conteneur
+container_time=$($ssh_command 'date')
+echo "L'heure du conteneur $lxc_name est : $container_time"
+
+sudo lxc-ls -f
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
