@@ -89,9 +89,11 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   echo "fr_FR.UTF-8 UTF-8" > /etc/locale.gen &&
   locale-gen &&
   update-locale LANG=fr_FR.UTF-8 &&
-  apt update -qq > /dev/null 2>&1 &&
-  apt install -yqq ssh sudo > /dev/null 2>&1
-' || error "Erreur lors du paramétrage du conteneur lxc"
+  apt update -qq &&
+  apt install -yqq ssh sudo &&
+  useradd '"$username"' &&
+  echo "'"$username"':'"$passwd"'" | chpasswd
+' > /dev/null 2>&1 || error "Erreur lors du paramétrage du conteneur lxc"
 
 printf "\n" && sudo lxc-ls -f
 
