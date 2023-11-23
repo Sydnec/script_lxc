@@ -92,6 +92,6 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
 '
-sudo lxc-ls -f
+display $(sudo lxc-ls -f)
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
