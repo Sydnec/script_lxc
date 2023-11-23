@@ -5,7 +5,7 @@ set -euo pipefail
 ###########################
 # Variables et constantes #
 ###########################
-RED="\033[1;31m"
+RED="\033[0;31m"
 GREEN="\033[0;32m"
 BLUE="\033[0;34m"
 RESET_COLOR="\033[0m"
@@ -137,7 +137,7 @@ if [ "$auto_connect" == false ]; then
     sudo lxc-ls -f
 else
     ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/key_$lxc_name >/dev/null 2>&1 && success "Generated key" || error "Key generation"
-    ssh-copy-id $username@$container_ip 2>&1 && success "Keys copied" || error "Key copy"
+    ssh-copy-id -i ~/.ssh/key_$lxc_name $username@$container_ip 2>&1 && success "Keys copied" || error "Key copy"
     ssh $username@$container_ip
 fi
 
