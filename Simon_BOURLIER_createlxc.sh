@@ -5,8 +5,9 @@ set -euo pipefail
 ###########################
 # Variables et constantes #
 ###########################
-GREEN="\033[0;32m"
 RED="\033[0;31m"
+GREEN="\033[0;32m"
+BLUE="\033[0;34m"
 RESET_COLOR="\033[0m"
 
 myself=$(basename "$0") # Nom du script
@@ -21,33 +22,36 @@ auto_connect=false
 #############################
 # Déclaration des fonctions #
 #############################
+info() {
+    printf -- "${BLUE}[ NFO ]\t%s${RESET_COLOR}\n" "$1"
+}
+
 success() {
-    printf -- "${GREEN}%s${RESET_COLOR}\n" "$1"
+    printf -- "${GREEN}[ SUCCESS ]\t%s${RESET_COLOR}\n" "$1"
 }
 
 error() {
-    printf >&2 -- "${RED}Error: %s$RESET_COLOR\n" "$1"
+    printf >&2 -- "${RED}[ ERROR ]\t%s$RESET_COLOR\n" "$1"
     exit "$2"
 }
 
 usage() {
     if ! $show_usage; then
         cat <<-EOF
-    Utilisation: $myself [-i repertoire_entree] [-o repertoire_sortie] [-m] [-e] [-s] [-n] [-l repertoire_logs] [-h]
-
+    Utilisation: $myself 
+    
     Options:
-        -i : Chemin du répertoire d'entrée
-        -o : Chemin du répertoire de sortie
-        -m : Déplacer les fichiers au lieu de les copier
-        -e : Ecrase les fichier de destintations s'ils existent déjà
-        -s : Mode simulation (évalue les actions sans les exécuter)
-        -n : (no log) Execute silencieusement
-        -l : Rediriger les logs dans un dossier externe ("" pour prendre .logs/ par défaut)
+        -n : 
+        -d : 
+        -r : 
+        -a : 
+        -u : 
+        -c : 
         -h : Afficher ce message d'aide
 
     Exemple:
-        $myself -mei /chemin/vers/repertoire_entree -o /chemin/vers/repertoire_sortie -l ./vers/logs
-
+        $myself 
+        
 		EOF
         show_usage=true
     fi
@@ -84,7 +88,7 @@ while getopts "n:d:r:a:u:ch" opt; do
         exit 0
         ;;
     \?)
-        error "Utilisation: $myself [-i repertoire_entree] [-o repertoire_sortie] [-m] [-s] [-n] [-l repertoire_logs] [-e] [-h]"
+        error "Utilisation: $myself"
         ;;
     esac
 done
@@ -92,15 +96,10 @@ done
 [ -z "$(dpkg -l | grep -w 'lxc') | grep -w "lxc")" ] && sudo apt install -qq lxc
 [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ] && sudo sed -i '/lxc.net.0.flags = up/a lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx' /etc/lxc/default.conf
 
-success $lxc_name
-success $distr_name
-success $release
-success $arch
+sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch > /dev/null 2>&1 && success "Container created" || error "Creating lxc container"
+sudo lxc-start -n $lxc_name || success "Container launched" || error "Launching lxc container"
 
-sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch || error "Erreur lors de la création du conteneur lxc"
-sudo lxc-start -n $lxc_name || error "Erreur lors du lancement du conteneur lxc"
-
-printf -- "\n%s\n\n" "En attente de connexion internet ..."
+printf -- "\n%s\n\n" "Waiting internet connection"
 while ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1; do
     sleep 1
 done
@@ -113,21 +112,26 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   apt install -yqq ssh sudo > /dev/null 2>&1 &&
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
-' && sucess "Paramétrage effectué avec succès" || error "Erreur lors du paramétrage du conteneur lxc"
+' && sucess "Container set up" || error "Setting up container"
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
-cat <<-EOF
 
-    You can now connect with ssh to the container : 
+if [ "$auto_connect" == false ]; then 
+    cat <<-EOF
 
-    | Username :    user
-    | Password :    user
+        You can now connect with ssh to the container : 
 
-    command :
-        ssh user@$container_ip
+        | Username :    user
+        | Password :    user
 
-EOF
-[ "$auto_connect" == true ] && ssh user@$container_ip
-sudo lxc-ls -f
+        Command :
+            ssh $username@$container_ip
+
+    EOF
+    sudo lxc-ls -f
+else
+    sshpass -p "$passwd" ssh $username@$container_ip
+fi
+
 
 # sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
