@@ -93,7 +93,7 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   apt install -yqq ssh sudo &&
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
-' > /dev/null 2>&1 || error "Erreur lors du paramétrage du conteneur lxc"
+' || error "Erreur lors du paramétrage du conteneur lxc"
 
 printf "\n" && sudo lxc-ls -f
 
