@@ -23,15 +23,15 @@ auto_connect=false
 # Déclaration des fonctions #
 #############################
 info() {
-    printf -- "${BLUE}[ NFO ]\t%s${RESET_COLOR}\n" "$1"
+    printf -- "$BLUE[INFO]$RESET_COLOR\t%s\n" "$1"
 }
 
 success() {
-    printf -- "${GREEN}[ SUCCESS ]\t%s${RESET_COLOR}\n" "$1"
+    printf -- "$GREEN[SUCCESS]$RESET_COLOR\t%s\n" "$1"
 }
 
 error() {
-    printf >&2 -- "${RED}[ ERROR ]\t%s$RESET_COLOR\n" "$1"
+    printf >&2 -- "$RED[ERROR]$RESET_COLOR\t%s\n" "$1"
     exit "$2"
 }
 
@@ -99,10 +99,11 @@ done
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch > /dev/null 2>&1 && success "Container created" || error "Creating lxc container"
 sudo lxc-start -n $lxc_name && success "Container launched" || error "Launching lxc container"
 
-printf -- "\n%s\n\n" "Waiting internet connection"
+info "Waiting internet connection"
 while ! sudo lxc-attach -n $lxc_name -- ping -c 1 8.8.8.8 > /dev/null 2>&1; do
     sleep 1
 done
+success "Internet connection etablished"
 
 sudo lxc-attach -n $lxc_name -- bash -c '
   echo "fr_FR.UTF-8 UTF-8" > /etc/locale.gen &&
