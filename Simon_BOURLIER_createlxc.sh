@@ -4,7 +4,7 @@ set -euo pipefail
 
 myself=$(basename "$0") # Nom du script
 
-[ ! dpkg-query -l lxc &> /dev/null; ] && sudo -qq apt install lxc
+[ ! dpkg-query -l lxc &> /dev/null; ] && sudo apt install -qq lxc
 
 # sudo lxc-create -t download -n c1 -- -d debian -r bullseye -a amd64
 # sudo lxc-start -n c1
