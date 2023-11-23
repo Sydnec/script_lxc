@@ -1,4 +1,30 @@
 #!/bin/bash
+#
+# LXC Container Creation Script
+# Version 1.1 as of 09/23/23
+#
+# Description:
+# This Bash script creates an LXC container, performs various configurations, and provides
+# information for connecting to the container via SSH.
+#
+# Usage:
+#   Usage: script_name.sh -n <container_name> -d <distribution> -r <release> -a <arch> -u <username> -p <password> [-h]
+#
+# Options:
+#   -n : Container name
+#   -d : Distribution (default: debian)
+#   -r : Distribution release (default: bullseye)
+#   -a : Distribution architecture (default: amd64)
+#   -u : Username for the container
+#   -p : Password for the new user
+#   -h : Display this help message
+#
+# Example:
+#   script_name.sh -n my_container -d debian -r bullseye -a amd64 -u user -p password
+#
+# Author:
+#   Simon Bourlier
+#
 
 set -euo pipefail
 
@@ -18,6 +44,7 @@ arch="amd64"
 username="user"
 passwd="user"
 auto_connect=false
+show_usage=false
 
 #############################
 # Déclaration des fonctions #
@@ -38,19 +65,19 @@ error() {
 usage() {
     if ! $show_usage; then
         cat <<-EOF
-    Utilisation: $myself 
-    
-    Options:
-        -n : 
-        -d : 
-        -r : 
-        -a : 
-        -u : 
-        -h : Afficher ce message d'aide
+    Usage: $myself -n <container_name> -d <distribution> -r <release> -a <architecture> -u <username> -p <password> -h
 
-    Exemple:
-        $myself 
-        
+    Options:
+        -n : Give a name to your container
+        -d : Chose the distribution (default: $distr_name)
+        -r : Chose the distribution's release (default: $release)
+        -a : Chose the distribution's architecture (default: $arch)
+        -u : Specify the username to use
+        -p : Specify the password to use
+        -h : Display this help message
+
+    Example:
+        $myself -n my_container -d $distr_name -r $release -a $arch -u $user -p $passwd
 		EOF
         show_usage=true
     fi
@@ -59,7 +86,7 @@ usage() {
 #######################
 # Lecture des options #
 #######################
-while getopts "n:d:r:a:u:h" opt; do
+while getopts "n:d:r:a:u:p:h" opt; do
     case "$opt" in
     n) # Nom du contenaire
         lxc_name="$OPTARG"
@@ -84,11 +111,14 @@ while getopts "n:d:r:a:u:h" opt; do
         exit 0
         ;;
     \?)
-        error "Utilisation: $myself" 1
+        error "Utilisation: $myself -n my_container -d debian -r bullseye -a amd64 -u user -p secret" 1
         ;;
     esac
 done
 
+################################
+# Vérifications des pré-requis #
+################################
 if [ -z "$(dpkg -l | grep -w 'lxc' | grep -w "lxc")" ]; then
     info "Installing lxc"
     sudo apt install -y lxc >/dev/null 2>&1 && success "lxc intalled" || error "Failed lxc to settle in" 1
@@ -99,7 +129,9 @@ if [ -z "$(grep '^lxc\.net\.0\.hwaddr.*xx:xx:xx$' /etc/lxc/default.conf)" ]; the
 fi
 if sudo lxc-info "$lxc_name" &>/dev/null; then error "There is already a container using the name \"$lxc_name\"" 1; fi
 
-
+##############
+# Traitement #
+##############
 sudo lxc-create -t download -n $lxc_name -- -d $distr_name -r $release -a $arch >/dev/null 2>&1 && success "Container created" || error "lxc container failed to create" 1
 sudo lxc-start -n $lxc_name && success "Container launched" || error "lxc container failed to launch" 1
 
@@ -122,11 +154,14 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd' >/dev/null 2>&1 && success "User $username added" || error "Failed to add user $username" 1
 
+#############################
+# Informations de connexion #
+#############################
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 success ""
 cat <<-EOF
 
-    You can now connect with ssh to the container : 
+    You can now connect to the container using ssh : 
 
     | Username :  $username
     | Password :  $passwd
@@ -136,5 +171,3 @@ cat <<-EOF
 
 EOF
 sudo lxc-ls -f
-
-# sudo lxc-ls -f | awk '/RUNNING/ {print $1}' | xargs -I {} sudo lxc-stop -n {} && sudo lxc-ls -f | awk '/STOPPED/ {print $1}' | xargs -I {} sudo lxc-destroy -n {}
