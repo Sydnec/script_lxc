@@ -23,7 +23,7 @@ auto_connect=false
 # Déclaration des fonctions #
 #############################
 info() {
-    printf -- "$BLUE[ INFOS ]$RESET_COLOR\t    %s\n" "$1"
+    printf -- "$BLUE[ INFOS ]$RESET_COLOR    %s\n" "$1"
 }
 
 success() {
@@ -31,7 +31,7 @@ success() {
 }
 
 error() {
-    printf >&2 -- "$RED[ ERROR ]$RESET_COLOR    %s\n" "$1"
+    printf >&2 -- "$RED[ ERROR ]$RESET_COLOR   %s\n" "$1"
     exit "$2"
 }
 
@@ -110,9 +110,10 @@ sudo lxc-attach -n $lxc_name -- bash -c '
   locale-gen &&
   update-locale LANG=fr_FR.UTF-8 &&
   apt update -qq &&
-  apt install -yqq ssh sudo useradd '"$username"' &&
+  apt install -yqq ssh sudo &&
+  useradd '"$username"' &&
   echo "'"$username"':'"$passwd"'" | chpasswd
-' > /dev/null 2>&1
+'
 
 container_ip=$(sudo lxc-info -n $lxc_name | awk '/IP:/ {print $2}')
 
