@@ -77,7 +77,7 @@ usage() {
         -h : Display this help message
 
     Example:
-        $myself -n my_container -d $distr_name -r $release -a $arch -u $user -p $passwd
+        $myself -n my_container -d $distr_name -r $release -a $arch -u $username -p $passwd
 		EOF
         show_usage=true
     fi
